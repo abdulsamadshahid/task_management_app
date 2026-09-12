@@ -1,0 +1,98 @@
+version: '3.8'
+
+# ==============================================================================
+# Task Management Web Application - Docker Compose Configuration
+# 3-Tier Architecture: Frontend (React/Nginx) -> Backend (Node.js/Express) -> Database (PostgreSQL)
+# ==============================================================================
+
+services:
+  # Tier 3: PostgreSQL Database Service
+  db:
+    image: postgres:15-alpine
+    container_name: task-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-taskdb}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      # Persistent named volume for database data
+      - postgres_data:/var/lib/postgresql/data
+      # Automated database schema initialization script
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      # Expose PostgreSQL port for local host database inspection (optional)
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-taskdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - task-network
+
+  # Tier 2: Express REST API Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: task-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      # Uses the Docker service name 'db' for internal container DNS resolution
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-taskdb}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - task-network
+
+  # Tier 1: React Single Page Application Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Client-side API URL injected during Vite production build
+        VITE_API_URL: http://localhost:5000
+    container_name: task-frontend
+    restart: unless-stopped
+    ports:
+      # Maps host port 3000 to internal Nginx port 80
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - task-network
+
+volumes:
+  # Named volume for persistent database storage across container recreation
+  postgres_data:
+    driver: local
+
+networks:
+  # Isolated bridge network for secure container-to-container communication
+  task-network:
+    driver: bridge

@@ -1,0 +1,7 @@
+{
+  "name": "Task Management App",
+  "description": "A 3-tier production-style Task Management web application with React frontend, Node.js/Express REST API, and PostgreSQL database designed for DevOps containerization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

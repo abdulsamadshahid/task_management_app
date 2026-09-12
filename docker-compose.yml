@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  # Tier 3: PostgreSQL Database
+  # Tier 3: PostgreSQL Databases
   db:
     image: postgres:15-alpine
     container_name: task-db

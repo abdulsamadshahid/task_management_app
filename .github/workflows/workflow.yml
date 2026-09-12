@@ -1,4 +1,4 @@
-name: My_task_app
+name: My_task_management_app
 
 on:
   push:

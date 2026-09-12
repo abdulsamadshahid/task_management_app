@@ -1,87 +1,24 @@
-name: My_task_management_app
+name: OIDC_Debug_Test
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  deploy:
+  debug-oidc:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6.2.4
-        with:
-          role-to-assume: arn:aws:iam::058835008914:role/github_actions_ecr_permission
-          aws-region: ap-south-1
-
-      - name: Check AWS identity
-        run: aws sts get-caller-identity
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build and Push Docker Images
+      - name: Debug OIDC Claims
         run: |
-          aws ecr get-login-password --region ap-south-1 | \
-          docker login --username AWS \
-          --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
+          TOKEN=$(curl -sSf \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
+            | jq -r '.value')
 
-          docker build \
-            -f ./frontend/Dockerfile \
-            -t my-task-app_frontend \
-            ./images
+          PAYLOAD=$(echo "$TOKEN" | cut -d '.' -f2)
 
-          docker tag \
-            my-task-app_frontend:latest \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
-
-          docker push \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
-
-          docker build \
-            -f ./backend/Dockerfile \
-            -t my-task-app_backend \
-            ./images
-
-          docker tag \
-            my-task-app_backend:latest \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
-
-          docker push \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
-
-      - name: Prepare SSH key
-        run: |
-          echo "${{ secrets.id_rsa }}" > id_rsa
-          chmod 600 id_rsa
-
-      - name: Copy deployment files
-        run: |
-          scp -i id_rsa docker-compose.yml \
-            ubuntu@13.207.176.151:/home/ubuntu/
-
-          scp -i id_rsa -r database \
-            ubuntu@13.207.176.151:/home/ubuntu/
-
-      - name: Deploy on EC2
-        run: |
-          ssh -i id_rsa ubuntu@13.207.176.151 << 'EOF'
-
-          aws ecr get-login-password --region ap-south-1 | \
-          docker login --username AWS \
-          --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
-
-          docker compose pull
-          docker compose up -d
-
-          EOF
-
-      - name: Remove SSH key
-        if: always()
-        run: rm -f id_rsa
+          echo "$PAYLOAD" | base64 -d 2>/dev/null | jq .

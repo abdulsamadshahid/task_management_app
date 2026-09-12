@@ -15,7 +15,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug OIDC Claims
-        uses: github/actions-oidc-debugger@main
-        with:
-          audience: sts.amazonaws.com
+      - name: Get OIDC Token
+        id: oidc
+        run: |
+          echo "Requesting GitHub OIDC token..."
+
+          TOKEN=$(curl -sSf \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
+            | jq -r '.value')
+
+          echo "OIDC token successfully obtained."
+          echo "Token length: ${#TOKEN}"
+
+      - name: Show OIDC Environment
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Branch/Ref: $GITHUB_REF"
+          echo "Workflow: $GITHUB_WORKFLOW"
+          echo "Actor: $GITHUB_ACTOR"

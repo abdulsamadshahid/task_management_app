@@ -1,0 +1,39 @@
+name: My_Portfolio_Workflow
+
+on: push
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.4
+        with:
+          role-to-assume: arn:aws:iam::058835008914:role/github_actions_ecr_permission
+          aws-region: ap-south-1
+
+      - name: Check AWS identity
+        run: aws sts get-caller-identity
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: auto deploy
+        run: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
+          echo "${{ secrets.id_rsa }}" > id_rsa
+          chmod 600 id_rsa
+          docker build -f ./frontend/Dockerfile -t my-task-app_frontend ./images
+          docker tag my-task-app_frontend:latest 058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
+          docker push 058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
+          docker build -f ./backend/Dockerfile -t my-task-app_backend ./images
+          docker tag my-task-app_backend:latest 058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
+          docker push 058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
+          scp -i id_rsa docker-compose.yml ubuntu@13.207.176.151:/home/ubuntu/
+          scp -i id_rsa -r database ubuntu@13.207.176.151:/home/ubuntu/
+          ssh -i id_rsa ubuntu@13.207.176.151  <<'EOF'
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
+          docker compose pull
+          docker compose up -d
+          EOF
+          rm -rf id_rsa

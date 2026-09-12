@@ -63,15 +63,15 @@ jobs:
 
       - name: Copy deployment files
         run: |
-          scp -i id_rsa docker-compose.yml \
+          scp -o StrictHostKeyChecking=no -i id_rsa docker-compose.yml \
             ubuntu@13.207.176.151:/home/ubuntu/
 
-          scp -i id_rsa -r database \
+          scp -o StrictHostKeyChecking=no -i id_rsa -r database \
             ubuntu@13.207.176.151:/home/ubuntu/
 
       - name: Deploy on EC2
         run: |
-          ssh -i id_rsa ubuntu@13.207.176.151 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i id_rsa ubuntu@13.207.176.151 << 'EOF'
 
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
 

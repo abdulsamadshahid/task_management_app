@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend_service
+spec:  #can contain multiple containers
+  type: ClusterIP     #clusterip is default. other Types: NodePort
+  ports:
+  - targetPort: 5000  #targetport is where backend/frontend is listening to. this is the port where frontend communicates with backend stuff like that
+    port: 5000  #port is where service is exposed. this is the port we access through web and stuff
+
+  selector:
+    matchable:
+      app: task_app_backend

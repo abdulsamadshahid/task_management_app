@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend_deployment
+  labels:
+    app: task_app_deployment
+spec:  #under specs comes template of pods you want replicaSet to run, skip apiVersion and kind from pod_creation.yml file
+  metadata:
+    name: backend
+    labels:
+      app: task_app_backend
+  spec:
+    containers:
+    - name: backend_container
+      image: 058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
+  relicas: 1
+  selector: 
+    matchables:
+      app: task_app_backend 

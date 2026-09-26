@@ -11,7 +11,7 @@ spec:  #under specs comes template of pods you want replicaSet to run, skip apiV
         app: task_app_db
     spec:
       containers:
-      - name: Postgres_db_container
+      - name: Postgres-db-container
         image: postgres:15-alpine
   replicas: 1
   selector: 

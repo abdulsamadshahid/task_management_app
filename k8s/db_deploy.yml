@@ -13,6 +13,12 @@ spec:  #under specs comes template of pods you want replicaSet to run, skip apiV
       containers:
       - name: postgres-db-container
         image: postgres:15-alpine
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
   replicas: 1
   selector: 
     matchLabels:

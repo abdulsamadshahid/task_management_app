@@ -9,5 +9,4 @@ spec:  #can contain multiple containers
     port: 5432        #port is where service is exposed. this is the port we access through web and stuff
 
   selector:
-    matchable:
-      app: task_app_db
+    app: task_app_db

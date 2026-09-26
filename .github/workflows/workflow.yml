@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  Configure_AWS_Credentials:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,37 +25,25 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Build and Push Docker Images
         run: |
-          aws ecr get-login-password --region ap-south-1 | \
-          docker login --username AWS \
-          --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
 
-          docker build \
-            -f ./frontend/Dockerfile \
-            -t my-task-app_frontend \
-            ./frontend
+          docker build -f ./frontend/Dockerfile -t my-task-app_frontend ./frontend
 
-          docker tag \
-            my-task-app_frontend:latest \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
+          docker tag my-task-app_frontend:latest 058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
 
-          docker push \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
+          docker push 058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest
 
-          docker build \
-            -f ./backend/Dockerfile \
-            -t my-task-app_backend \
-            ./backend
+          docker build -f ./backend/Dockerfile -t my-task-app_backend ./backend
 
-          docker tag \
-            my-task-app_backend:latest \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
+          docker tag my-task-app_backend:latest 058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
 
-          docker push \
-            058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
-
+          docker push 058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
+  Deploy:
+    needs: Configure_AWS_Credentials
+    runs-on: ubuntu-latest
+    steps:
       - name: Prepare SSH key
         run: |
           echo "${{ secrets.id_rsa }}" > id_rsa
@@ -63,23 +51,14 @@ jobs:
 
       - name: Copy deployment files
         run: |
-          scp -o StrictHostKeyChecking=no -i id_rsa docker-compose.yml \
-            ubuntu@13.207.176.151:/home/ubuntu/
-
-          scp -o StrictHostKeyChecking=no -i id_rsa -r database \
-            ubuntu@13.207.176.151:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i id_rsa -r k8s ubuntu@13.202.44.39:/home/ubuntu/
 
       - name: Deploy on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i id_rsa ubuntu@13.207.176.151 << 'EOF'
-
+          ssh -o StrictHostKeyChecking=no -i id_rsa ubuntu@13.202.44.39 << 'EOF'
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 058835008914.dkr.ecr.ap-south-1.amazonaws.com
-
-          docker compose pull
-          docker compose up -d
-
+          kubectl apply -f k8s/
           EOF
-
       - name: Remove SSH key
         if: always()
         run: rm -f id_rsa

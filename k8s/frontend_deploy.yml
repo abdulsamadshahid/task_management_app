@@ -10,6 +10,8 @@ spec:  #under specs comes template of pods you want replicaSet to run, skip apiV
       labels:
         app: task_app_frontend
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
       - name: frontend-container
         image: 058835008914.dkr.ecr.ap-south-1.amazonaws.com/frontend_repo:latest

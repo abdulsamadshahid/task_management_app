@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend_deployment
+  name: db-deployment
   labels:
     app: task_app_deployment
 spec:  #under specs comes template of pods you want replicaSet to run, skip apiVersion and kind from pod_creation.yml file

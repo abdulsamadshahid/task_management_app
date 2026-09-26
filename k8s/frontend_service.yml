@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: frontend-service
 spec:  #can contain multiple containers
-  type: LoadBalancer     #clusterip is default. other Types: NodePort
+  type: NodePort     #clusterip is default. other Types: NodePort
   ports:
   - targetPort: 80  #targetport is where backend/frontend is listening to. this is the port where frontend communicates with backend stuff like that
     port: 80  #port is where service is exposed. this is the port we access through web and stuff
+    nodePort: 30569
 
   selector:
     app: task_app_frontend

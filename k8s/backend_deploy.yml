@@ -7,7 +7,6 @@ metadata:
 spec:  #under specs comes template of pods you want replicaSet to run, skip apiVersion and kind from pod_creation.yml file
   template:
     metadata:
-      name: backend
       labels:
         app: task_app_backend
     spec:
@@ -16,5 +15,5 @@ spec:  #under specs comes template of pods you want replicaSet to run, skip apiV
         image: 058835008914.dkr.ecr.ap-south-1.amazonaws.com/backend_repo:latest
   replicas: 1
   selector: 
-    matchlabels:
+    matchLabels:
       app: task_app_backend 

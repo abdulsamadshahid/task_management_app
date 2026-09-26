@@ -7,14 +7,13 @@ metadata:
 spec:  #under specs comes template of pods you want replicaSet to run, skip apiVersion and kind from pod_creation.yml file
   template:
     metadata:
-    name: Postgres_db
-    labels:
-      app: task_app_db
+      labels:
+        app: task_app_db
     spec:
       containers:
       - name: Postgres_db_container
         image: postgres:15-alpine
   replicas: 1
   selector: 
-    matchlabels:
+    matchLabels:
       app: task_app_db 

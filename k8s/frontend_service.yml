@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend_service
+  name: frontend-service
 spec:  #can contain multiple containers
   type: LoadBalancer     #clusterip is default. other Types: NodePort
   ports:

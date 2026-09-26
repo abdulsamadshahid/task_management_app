@@ -44,6 +44,8 @@ jobs:
     needs: Configure_AWS_Credentials
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Prepare SSH key
         run: |
           echo "${{ secrets.id_rsa }}" > id_rsa

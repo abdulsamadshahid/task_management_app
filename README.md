@@ -1,432 +1,78 @@
-# URL Shortener — DevOps Deployment Project
-
-A containerized URL Shortener application deployed using **Docker, AWS, Terraform, and GitHub Actions**.
-
-This project was built as a hands-on DevOps deployment project to practice containerization, infrastructure provisioning, CI/CD automation, cloud deployment, and troubleshooting.
-
----
-
-## 🚀 Project Overview
-
-The application allows users to enter a long URL and generate a shortened URL.
-
-The application consists of two services:
-
-* **Frontend** — React + Vite application served through Nginx
-* **Backend** — Node.js + Express REST API
-
-The application is containerized with Docker and deployed to AWS infrastructure provisioned using Terraform.
-
-A GitHub Actions workflow automates the deployment process whenever changes are pushed to the main branch.
-
----
-
-## 🏗️ Architecture
-
-```text
-                         Developer
-                            │
-                            │ git push
-                            ▼
-                    ┌─────────────────┐
-                    │     GitHub      │
-                    │   Repository    │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ GitHub Actions  │
-                    │     CI/CD       │
-                    └────────┬────────┘
-                             │
-                  ┌──────────┴──────────┐
-                  │                     │
-                  ▼                     ▼
-           Build Frontend        Build Backend
-             Docker Image          Docker Image
-                  │                     │
-                  └──────────┬──────────┘
-                             │
-                             ▼
-                       Amazon ECR
-                             │
-                             │ Pull images
-                             ▼
-                    ┌─────────────────┐
-                    │    AWS EC2      │
-                    │                 │
-                    │ ┌─────────────┐ │
-                    │ │   Nginx     │ │
-                    │ │  Frontend   │ │
-                    │ └──────┬──────┘ │
-                    │        │         │
-                    │        ▼         │
-                    │ ┌─────────────┐ │
-                    │ │   Node.js   │ │
-                    │ │   Backend   │ │
-                    │ └─────────────┘ │
-                    │                 │
-                    │ Docker          │
-                    └─────────────────┘
-
-              Infrastructure provisioned
-                    using Terraform
-```
-
----
-
-## 🛠️ Tech Stack
-
-### Application
-
-* React
-* Vite
-* Nginx
-* Node.js
-* Express.js
-
-### DevOps
-
-* Docker
-* Docker Compose
-* Git
-* GitHub
-* GitHub Actions
-* AWS
-* Amazon EC2
-* Amazon ECR
-* Terraform
-* Linux
-* Shell scripting
-
-### AWS
-
-* EC2
-* ECR
-* VPC
-* Subnet
-* Security Group
-* IAM
-* IAM Role
-* GitHub Actions OIDC
-
----
-
-## 📁 Project Structure
-
-```text
-url_shortner_deployment/
-│
-├── .github/
-│   └── workflows/
-│       └── workflow.yml
-│
-├── url-shortener/
-│   ├── frontend/
-│   │   ├── src/
-│   │   ├── Dockerfile
-│   │   ├── nginx.conf
-│   │   └── ...
-│   │
-│   ├── backend/
-│   │   ├── src/
-│   │   ├── Dockerfile
-│   │   └── ...
-│   │
-│   └── docker-compose.yml
-│
-└── README.md
-```
-
----
-
-# 🔄 CI/CD Pipeline
-
-The deployment pipeline is triggered when code is pushed to the `main` branch.
-
-```text
-Git Push
-   │
-   ▼
-GitHub Actions
-   │
-   ├── Checkout repository
-   │
-   ├── Authenticate with AWS
-   │
-   ├── Login to Amazon ECR
-   │
-   ├── Build frontend Docker image
-   │
-   ├── Build backend Docker image
-   │
-   ├── Push images to ECR
-   │
-   ├── Connect to EC2 through SSH
-   │
-   ├── Pull latest images
-   │
-   └── Restart application containers
-```
-
-This removes the need to manually build and deploy the application after every change.
-
----
-
-# 🐳 Docker
-
-The application is split into separate containers.
-
-### Frontend
-
-The React application is built using Vite and served using Nginx.
-
-```text
-React/Vite
-    │
-    ▼
-Production Build
-    │
-    ▼
-Nginx
-    │
-    ▼
-Port 80
-```
-
-### Backend
-
-The backend runs as a Node.js/Express container.
-
-```text
-Node.js
-   │
-   ▼
-Express API
-   │
-   ▼
-Port 5000
-```
-
-Docker Compose is used to manage the application services.
+# Task Management Application — AWS, Docker & Kubernetes
 
----
-
-# ☁️ AWS Infrastructure
+A containerized task management application deployed using AWS, Terraform, Docker, and Kubernetes. This project demonstrates Infrastructure as Code (IaC), CI/CD automation, container orchestration, and hands-on troubleshooting across application deployment environments.
 
-The infrastructure required for the deployment is provisioned using Terraform.
+## Architecture
 
-The environment includes:
+The application consists of a React frontend, a Node.js/Express backend, and a PostgreSQL database.
 
-* VPC
-* Public subnet
-* Internet connectivity
-* EC2 instance
-* Security Group
-* Amazon ECR repositories
-* IAM permissions
-* IAM role for GitHub Actions
+The application was containerized with Docker and deployed using Docker Compose and Kubernetes (Kind) on AWS infrastructure.
 
-The goal is to avoid manually creating infrastructure through the AWS console.
+## Tech Stack
 
----
+- **Cloud:** AWS EC2, VPC, IAM, Amazon ECR
+- **Infrastructure as Code:** Terraform
+- **Containers:** Docker, Docker Compose
+- **Orchestration:** Kubernetes (Kind)
+- **CI/CD:** GitHub Actions
+- **Authentication:** AWS IAM, OpenID Connect (OIDC)
+- **Frontend:** React, Vite, Nginx
+- **Backend:** Node.js, Express
+- **Database:** PostgreSQL
+- **Version Control:** Git, GitHub
 
-# 🏗️ Infrastructure as Code
+## DevOps Implementation
 
-Terraform is used to define the AWS infrastructure.
+### 1. AWS Infrastructure with Terraform
 
-Instead of manually configuring AWS resources, the infrastructure can be created from configuration files.
+- Provisioned AWS infrastructure using Terraform for repeatable, version-controlled resource creation.
+- Configured networking and security rules required for application access and connectivity.
+- Used Infrastructure as Code to simplify infrastructure management and deployment.
 
-Typical workflow:
+### 2. Docker Containerization
 
-```bash
-terraform init
-terraform plan
-terraform apply
-```
+- Containerized the frontend and backend application components.
+- Configured PostgreSQL as the application's database service.
+- Used Docker Compose to define application services and their connectivity.
 
-To remove the infrastructure:
+### 3. CI/CD with GitHub Actions
 
-```bash
-terraform destroy
-```
+- Automated Docker image builds and publishing to private Amazon ECR repositories.
+- Configured GitHub Actions to authenticate with AWS through OIDC and IAM roles, avoiding long-lived AWS access keys.
+- Automated deployment steps to reduce manual build-and-deploy operations.
 
----
+### 4. Kubernetes Deployment with Kind
 
-# 🔐 GitHub Actions → AWS Authentication
+- Deployed the containerized application to a Kubernetes cluster running on an AWS EC2 instance using Kind.
+- Used Kubernetes Deployments and Services to manage application workloads and service discovery.
+- Configured application components to communicate through Kubernetes networking.
+- Managed application configuration and sensitive values using Kubernetes ConfigMaps and Secrets where applicable.
+- Investigated and resolved image pull failures, Service connectivity problems, configuration errors, and application health issues.
 
-The CI/CD pipeline uses **GitHub Actions OIDC** to authenticate with AWS.
+### 5. Troubleshooting and Validation
 
-Instead of storing long-lived AWS access keys inside GitHub Secrets, GitHub Actions assumes an AWS IAM role using an OIDC trust relationship.
+Worked through deployment issues involving:
 
-```text
-GitHub Actions
-      │
-      │ OIDC Token
-      ▼
-AWS STS
-      │
-      │ Assume Role
-      ▼
-IAM Role
-      │
-      ▼
-AWS Resources
-```
+- AWS security group and networking configuration.
+- Docker container health and application connectivity.
+- Kubernetes image pulls and workload configuration.
+- Service selectors, ports, and application networking.
+- Application health checks and backend-to-database connectivity.
 
-This provides temporary AWS credentials during the workflow.
+Validated application functionality through health checks and API requests.
 
----
+## Application Endpoints
 
-# 🖥️ Running Locally
+| Endpoint | Purpose |
+|---|---|
+| `/health` | Backend health check |
+| `/api/tasks` | Task management API |
 
-## Prerequisites
+## Key Learnings
 
-Make sure the following are installed:
-
-* Docker
-* Docker Compose
-* Git
-* Node.js (for development)
-
-Clone the repository:
-
-```bash
-git clone https://github.com/abdulsamadshahid/url_shortner_deployment.git
-```
-
-Navigate into the application:
-
-```bash
-cd url_shortner_deployment/url-shortener
-```
-
-Start the application:
-
-```bash
-docker compose up --build
-```
-
-The frontend should then be available at:
-
-```text
-http://localhost:3000
-```
-
-The backend runs on:
-
-```text
-http://localhost:5000
-```
-
----
-
-# 🧪 Health Checks
-
-Both services include health-check functionality to help verify that containers are operating correctly.
-
-Example backend health endpoint:
-
-```text
-/health
-```
-
-Health checks were also useful during deployment troubleshooting to identify container networking and service availability issues.
-
----
-
-# 🔧 Troubleshooting Experience
-
-This project was intentionally used as a practical troubleshooting exercise rather than simply following a deployment tutorial.
-
-Issues encountered and resolved included:
-
-* Docker container health-check failures
-* `localhost` / IPv6 container networking behavior
-* Frontend Nginx connectivity issues
-* Backend health-check configuration
-* Docker build and rebuild problems
-* Container-to-container communication
-* AWS deployment configuration
-* ECR authentication
-* EC2 Docker permissions
-* GitHub Actions deployment failures
-
-The debugging process involved inspecting container status, logs, health checks, networking, and deployment configuration.
-
----
-
-# 📚 What I Practiced
-
-This project helped strengthen practical experience with:
-
-* Containerizing applications
-* Writing Dockerfiles
-* Docker Compose
-* Nginx
-* Linux administration
-* AWS EC2
-* Amazon ECR
-* VPC networking
-* Security Groups
-* IAM
-* IAM roles
-* GitHub Actions
-* CI/CD pipelines
-* GitHub OIDC authentication
-* Terraform
-* Infrastructure as Code
-* SSH-based deployment
-* Application troubleshooting
-* Container health checks
-
----
-
-# 🎯 Project Goal
-
-The primary goal of this project was not to build a production-scale URL shortening service.
-
-The goal was to practice the **DevOps lifecycle of taking an application from source code to a running cloud deployment**:
-
-```text
-Application
-     ↓
-Docker
-     ↓
-AWS Infrastructure
-     ↓
-Terraform
-     ↓
-ECR
-     ↓
-GitHub Actions
-     ↓
-Automated Deployment
-     ↓
-Running Application
-```
-
-This project is part of my hands-on DevOps learning portfolio.
-
----
-
-## 👨‍💻 Author
-
-**Abdul Samad Shahid**
-
-GitHub: [abdulsamadshahid](https://github.com/abdulsamadshahid)
-
----
-
-## 📌 Future Improvements
-
-Possible future improvements include:
-
-* HTTPS with a custom domain
-* AWS Application Load Balancer
-* Route 53
-* Automated infrastructure deployment through Terraform
-* Improved monitoring and logging
-* Kubernetes deployment
-* More advanced CI/CD strategies
-* Infrastructure and application security improvements
+- Provisioning AWS infrastructure using Terraform.
+- Containerizing applications using Docker.
+- Automating build and deployment workflows with GitHub Actions.
+- Integrating AWS IAM OIDC authentication into CI/CD.
+- Deploying containerized applications to a Kind Kubernetes cluster.
+- Troubleshooting Kubernetes workloads, networking, configuration, and service discovery.
